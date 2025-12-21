@@ -1,0 +1,174 @@
+openapi: 3.0.0
+info:
+  title: Authentication and User Access API
+  version: 1.0.0
+  description: API for user registration, login, and guest access to Meetra AI.
+
+servers:
+  - url: /api/v1
+    description: Base API URL
+
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email address
+                password:
+                  type: string
+                  format: password
+                  description: User's password (will be hashed)
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                    format: uuid
+                    description: Unique ID of the registered user
+                  email:
+                    type: string
+                    format: email
+        '400':
+          description: Invalid input (e.g., invalid email, weak password)
+        '409':
+          description: Email already exists
+
+  /auth/login/email:
+    post:
+      summary: Login with email and password
+      operationId: loginWithEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    description: JWT access token
+                  refreshToken:
+                    type: string
+                    description: JWT refresh token
+                  expiresIn:
+                    type: integer
+                    description: Access token expiration in seconds
+        '401':
+          description: Invalid credentials
+
+  /auth/login/google:
+    get:
+      summary: Initiate Google OAuth login flow
+      operationId: initiateGoogleOAuth
+      responses:
+        '302':
+          description: Redirect to Google's authentication server
+
+  /auth/login/google/callback:
+    get:
+      summary: Google OAuth callback endpoint
+      operationId: googleOAuthCallback
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Authorization code from Google
+      responses:
+        '200':
+          description: User logged in successfully via Google OAuth
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    description: JWT access token
+                  refreshToken:
+                    type: string
+                    description: JWT refresh token
+                  expiresIn:
+                    type: integer
+                    description: Access token expiration in seconds
+        '401':
+          description: Google OAuth failed
+
+  /guest/join:
+    post:
+      summary: Allow guest to join a meeting via invite link
+      operationId: joinAsGuest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - meetingId
+                - inviteCode
+              properties:
+                meetingId:
+                  type: string
+                  format: uuid
+                  description: ID of the meeting to join
+                inviteCode:
+                  type: string
+                  description: Invite code for the meeting
+      responses:
+        '200':
+          description: Guest joined successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  guestSessionId:
+                    type: string
+                    format: uuid
+                    description: Unique ID for the guest session
+                  accessToken:
+                    type: string
+                    description: Temporary JWT token for guest access
+        '400':
+          description: Invalid input
+        '403':
+          description: Invalid invite code
+        '404':
+          description: Meeting not found

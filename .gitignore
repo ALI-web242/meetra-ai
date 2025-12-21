@@ -1,0 +1,21 @@
+# Node.js
+node_modules/
+dist/
+build/
+*.log
+.env*
+.next/
+coverage/
+*.tsbuildinfo
+
+# IDEs
+.vscode/
+.idea/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.swp
