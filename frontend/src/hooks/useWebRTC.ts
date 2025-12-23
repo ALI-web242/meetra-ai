@@ -19,9 +19,12 @@ export function useWebRTC(meetingId: string, userId: string) {
   const [connectionState, setConnectionState] = useState<ConnectionState>('new');
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [reconnectAttempts, setReconnectAttempts] = useState(0);
+  const [isReconnecting, setIsReconnecting] = useState(false);
 
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const socketRef = useRef<Socket | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const initializePeerConnection = useCallback((config: RTCConfig = defaultRTCConfig) => {
     const pc = new RTCPeerConnection(config);
@@ -41,11 +44,23 @@ export function useWebRTC(meetingId: string, userId: string) {
     };
 
     pc.onconnectionstatechange = () => {
-      setConnectionState(pc.connectionState as ConnectionState);
+      const state = pc.connectionState as ConnectionState;
+      setConnectionState(state);
+
+      if (state === 'disconnected' || state === 'failed') {
+        handleReconnect();
+      } else if (state === 'connected') {
+        setReconnectAttempts(0);
+        setIsReconnecting(false);
+      }
     };
 
     pc.oniceconnectionstatechange = () => {
       console.log('ICE Connection State:', pc.iceConnectionState);
+
+      if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
+        handleReconnect();
+      }
     };
 
     pcRef.current = pc;
@@ -125,7 +140,35 @@ export function useWebRTC(meetingId: string, userId: string) {
     });
   }, [meetingId, userId]);
 
+  const handleReconnect = useCallback(() => {
+    if (isReconnecting || reconnectAttempts >= 5) {
+      console.log('Max reconnection attempts reached or already reconnecting');
+      return;
+    }
+
+    setIsReconnecting(true);
+    setReconnectAttempts((prev) => prev + 1);
+
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+    }
+
+    reconnectTimeoutRef.current = setTimeout(() => {
+      console.log(`Reconnecting... Attempt ${reconnectAttempts + 1}`);
+
+      if (pcRef.current) {
+        pcRef.current.restartIce();
+      }
+
+      setIsReconnecting(false);
+    }, 2000);
+  }, [isReconnecting, reconnectAttempts]);
+
   const disconnect = useCallback(() => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+    }
+
     if (pcRef.current) {
       pcRef.current.close();
       pcRef.current = null;
@@ -141,6 +184,8 @@ export function useWebRTC(meetingId: string, userId: string) {
 
     setRemoteStream(null);
     setConnectionState('closed');
+    setReconnectAttempts(0);
+    setIsReconnecting(false);
   }, [meetingId, userId]);
 
   useEffect(() => {
@@ -154,6 +199,8 @@ export function useWebRTC(meetingId: string, userId: string) {
     connectionState,
     remoteStream,
     socket,
+    reconnectAttempts,
+    isReconnecting,
     initializePeerConnection,
     connectSocket,
     addLocalStream,

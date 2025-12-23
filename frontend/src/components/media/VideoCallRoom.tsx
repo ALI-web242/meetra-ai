@@ -7,6 +7,8 @@ import { useWebRTCStore } from '@/stores/webrtcStore';
 import VideoPreview from './VideoPreview';
 import MediaControls from './MediaControls';
 import ConnectionStatus from './ConnectionStatus';
+import PermissionError from './PermissionError';
+import MediaSettings from './MediaSettings';
 
 interface VideoCallRoomProps {
   meetingId: string;
@@ -16,20 +18,25 @@ interface VideoCallRoomProps {
 
 export default function VideoCallRoom({ meetingId, userId, username }: VideoCallRoomProps) {
   const [isInitialized, setIsInitialized] = useState(false);
+  const [permissionError, setPermissionError] = useState<'camera' | 'microphone' | 'both' | null>(null);
 
   const {
     localStream,
     isAudioEnabled,
     isVideoEnabled,
+    error: streamError,
     startStream,
     stopStream,
     toggleAudio,
     toggleVideo,
+    switchDevice,
   } = useMediaStream();
 
   const {
     remoteStream,
     connectionState,
+    reconnectAttempts,
+    isReconnecting,
     initializePeerConnection,
     connectSocket,
     addLocalStream,
@@ -40,10 +47,12 @@ export default function VideoCallRoom({ meetingId, userId, username }: VideoCall
   const setAudioEnabled = useWebRTCStore((state) => state.setAudioEnabled);
   const setVideoEnabled = useWebRTCStore((state) => state.setVideoEnabled);
   const setConnectionState = useWebRTCStore((state) => state.setConnectionState);
+  const setReconnecting = useWebRTCStore((state) => state.setReconnecting);
 
   useEffect(() => {
     const initialize = async () => {
       try {
+        setPermissionError(null);
         const stream = await startStream({
           audio: { enabled: true, echoCancellation: true, noiseSuppression: true },
           video: { enabled: true, width: 1280, height: 720, frameRate: 30 },
@@ -53,18 +62,37 @@ export default function VideoCallRoom({ meetingId, userId, username }: VideoCall
         connectSocket();
         addLocalStream(stream);
         setIsInitialized(true);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to initialize media:', error);
+
+        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+          setPermissionError('both');
+        } else if (error.name === 'NotFoundError') {
+          setPermissionError('both');
+        }
       }
     };
 
     initialize();
 
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+        e.preventDefault();
+        toggleAudio();
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+        e.preventDefault();
+        toggleVideo();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+
     return () => {
       stopStream();
       disconnect();
+      window.removeEventListener('keydown', handleKeyPress);
     };
-  }, [meetingId, userId]);
+  }, [meetingId, userId, toggleAudio, toggleVideo]);
 
   useEffect(() => {
     setLocalStream(localStream);
@@ -82,6 +110,10 @@ export default function VideoCallRoom({ meetingId, userId, username }: VideoCall
     setConnectionState(connectionState);
   }, [connectionState, setConnectionState]);
 
+  useEffect(() => {
+    setReconnecting(isReconnecting);
+  }, [isReconnecting, setReconnecting]);
+
   const handleToggleAudio = () => {
     toggleAudio();
   };
@@ -94,6 +126,37 @@ export default function VideoCallRoom({ meetingId, userId, username }: VideoCall
     stopStream();
     disconnect();
   };
+
+  const handleRetryPermissions = () => {
+    setPermissionError(null);
+    setIsInitialized(false);
+    window.location.reload();
+  };
+
+  const handleAudioDeviceChange = async (deviceId: string) => {
+    try {
+      await switchDevice('audio', deviceId);
+    } catch (error) {
+      console.error('Failed to switch audio device:', error);
+    }
+  };
+
+  const handleVideoDeviceChange = async (deviceId: string) => {
+    try {
+      await switchDevice('video', deviceId);
+    } catch (error) {
+      console.error('Failed to switch video device:', error);
+    }
+  };
+
+  if (permissionError) {
+    return (
+      <PermissionError
+        type={permissionError}
+        onRetry={handleRetryPermissions}
+      />
+    );
+  }
 
   if (!isInitialized) {
     return (
@@ -130,11 +193,17 @@ export default function VideoCallRoom({ meetingId, userId, username }: VideoCall
 
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <ConnectionStatus />
-        <MediaControls
-          onToggleAudio={handleToggleAudio}
-          onToggleVideo={handleToggleVideo}
-          onEndCall={handleEndCall}
-        />
+        <div className="flex items-center gap-4">
+          <MediaControls
+            onToggleAudio={handleToggleAudio}
+            onToggleVideo={handleToggleVideo}
+            onEndCall={handleEndCall}
+          />
+          <MediaSettings
+            onAudioDeviceChange={handleAudioDeviceChange}
+            onVideoDeviceChange={handleVideoDeviceChange}
+          />
+        </div>
       </div>
     </div>
   );
