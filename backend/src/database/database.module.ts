@@ -18,7 +18,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
             ssl: true,
             entities: [__dirname + '/../**/*.entity{.ts,.js}'],
             synchronize: true,
-            logging: true,
+            logging: false,
+            connectTimeoutMS: 10000,
+            extra: {
+              max: 10,
+              idleTimeoutMillis: 30000,
+              connectionTimeoutMillis: 10000,
+            },
           };
         }
 

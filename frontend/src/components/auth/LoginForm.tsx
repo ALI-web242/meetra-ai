@@ -122,7 +122,8 @@ function LoginFormContent() {
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium mb-1"
+            style={{ color: 'var(--foreground)' }}
           >
             Email
           </label>
@@ -132,9 +133,12 @@ function LoginFormContent() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             onBlur={handleEmailBlur}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.email ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className={`w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            style={{
+              backgroundColor: 'var(--input)',
+              color: 'var(--foreground)',
+              border: errors.email ? '1px solid #ef4444' : '1px solid var(--border)'
+            }}
             disabled={isLoading}
           />
           {errors.email && (
@@ -145,7 +149,8 @@ function LoginFormContent() {
         <div>
           <label
             htmlFor="password"
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium mb-1"
+            style={{ color: 'var(--foreground)' }}
           >
             Password
           </label>
@@ -155,9 +160,12 @@ function LoginFormContent() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             onBlur={handlePasswordBlur}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.password ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className={`w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            style={{
+              backgroundColor: 'var(--input)',
+              color: 'var(--foreground)',
+              border: errors.password ? '1px solid #ef4444' : '1px solid var(--border)'
+            }}
             disabled={isLoading}
           />
           {errors.password && (
