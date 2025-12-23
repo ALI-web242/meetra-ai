@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { authService } from '../services/auth.service';
 import { CreateMeetingModal, MeetingLinkShare } from '../components/meeting';
+import ThemeToggle from '../components/ui/ThemeToggle';
 
 function HomeContent() {
   const router = useRouter();
@@ -62,14 +63,21 @@ function HomeContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100" style={{
+      background: 'var(--background)',
+    }}>
       <main className="max-w-4xl mx-auto px-4 py-16">
-        {/* Header */}
+        {/* Header with Theme Toggle */}
+        <div className="flex justify-end mb-6">
+          <ThemeToggle />
+        </div>
+
+        {/* Title */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold mb-4" style={{ color: 'var(--foreground)' }}>
             Meetra AI
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl" style={{ color: 'var(--muted-foreground)' }}>
             Video conferencing made simple
           </p>
         </div>
@@ -79,7 +87,8 @@ function HomeContent() {
           <div className="flex justify-end mb-6">
             <button
               onClick={handleLogout}
-              className="text-sm text-gray-600 hover:text-gray-900"
+              className="text-sm hover:underline"
+              style={{ color: 'var(--muted-foreground)' }}
             >
               Sign out
             </button>
