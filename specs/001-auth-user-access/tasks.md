@@ -26,7 +26,7 @@
 - [x] T002 Initialize backend NestJS/Express project in `backend/`.
 - [x] T003 Initialize frontend Next.js project in `frontend/`.
 - [x] T004 [P] Configure shared ESLint, Prettier, and TypeScript settings for both projects.
-- [ ] T005 [P] Setup Git repository and initial commit.
+- [x] T005 [P] Setup Git repository and initial commit.
 
 ---
 
@@ -36,13 +36,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 Setup PostgreSQL database and ORM (e.g., TypeORM/Prisma) in `backend/`.
-- [ ] T007 Implement basic user authentication module (JWT generation, token validation) in `backend/src/auth/`.
-- [ ] T008 [P] Configure password hashing library in `backend/src/utils/`.
-- [ ] T009 [P] Implement base error handling and logging middleware in `backend/src/middleware/`.
-- [ ] T010 [P] Setup Jest for backend unit/integration tests (`backend/tests/`).
-- [ ] T011 [P] Setup Jest and Testing Library for frontend unit/integration tests (`frontend/tests/`).
-- [ ] T012 [P] Setup Cypress/Playwright for E2E tests (`e2e/`).
+- [x] T006 Configure Neon PostgreSQL database and ORM (e.g., TypeORM/Prisma) in `backend/`, using a secure `DATABASE_URL` connection string with SSL enabled (no local Dockerized Postgres).
+- [x] T007 Implement basic user authentication module (JWT generation, token validation) in `backend/src/auth/`.
+- [x] T008 [P] Configure password hashing library in `backend/src/utils/`.
+- [x] T009 [P] Implement base error handling and logging middleware in `backend/src/middleware/`.
+- [x] T010 [P] Setup Jest for backend unit/integration tests (`backend/tests/`).
+- [x] T011 [P] Setup Jest and Testing Library for frontend unit/integration tests (`frontend/tests/`).
+- [x] T012 [P] Setup Cypress/Playwright for E2E tests (`e2e/`).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -58,19 +58,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T013 [P] [US1] Write unit tests for User entity/model in `backend/tests/models/user.entity.spec.ts`.
-- [ ] T014 [P] [US1] Write unit tests for user registration service in `backend/tests/services/user.service.spec.ts`.
-- [ ] T015 [P] [US1] Write integration test for `POST /auth/register` endpoint in `backend/tests/controllers/auth.controller.spec.ts`.
-- [ ] T016 [P] [US1] Write integration tests for registration UI component in `frontend/tests/components/auth/RegisterForm.spec.tsx`.
-- [ ] T017 [P] [US1] Write E2E test for user registration flow.
+- [x] T013 [P] [US1] Write unit tests for User entity/model in `backend/tests/models/user.entity.spec.ts`.
+- [x] T014 [P] [US1] Write unit tests for user registration service in `backend/tests/services/auth.service.spec.ts`.
+- [x] T015 [P] [US1] Write integration test for `POST /auth/register` endpoint in `backend/tests/controllers/auth.controller.spec.ts`.
+- [x] T016 [P] [US1] Write integration tests for registration UI component in `frontend/tests/components/auth/RegisterForm.spec.tsx`.
+- [x] T017 [P] [US1] Write E2E test for user registration flow in `e2e/tests/auth/registration.spec.ts`.
 
 ### Implementation for User Story 1
 
-- [ ] T018 [P] [US1] Create User entity/model in `backend/src/models/user.entity.ts`.
-- [ ] T019 [US1] Create user registration service in `backend/src/services/user.service.ts`.
-- [ ] T020 [US1] Implement `POST /auth/register` API endpoint in `backend/src/controllers/auth.controller.ts`.
-- [ ] T021 [US1] Design and implement registration UI component in `frontend/src/components/auth/RegisterForm.tsx`.
-- [ ] T022 [US1] Integrate registration form with backend API in `frontend/src/pages/register.tsx`.
+- [x] T018 [P] [US1] Create User entity/model in `backend/src/user/user.entity.ts`.
+- [x] T019 [US1] Create user registration service in `backend/src/auth/auth.service.ts`.
+- [x] T020 [US1] Implement `POST /auth/register` API endpoint in `backend/src/auth/auth.controller.ts`.
+- [x] T021 [US1] Design and implement registration UI component in `frontend/src/components/auth/RegisterForm.tsx`.
+- [x] T022 [US1] Integrate registration form with backend API in `frontend/src/app/register/page.tsx`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -86,20 +86,20 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T023 [P] [US2] Write unit tests for user login service in `backend/tests/services/auth.service.spec.ts`.
-- [ ] T024 [P] [US2] Write integration tests for `POST /auth/login/email` endpoint in `backend/tests/controllers/auth.controller.spec.ts`.
-- [ ] T025 [P] [US2] Write integration tests for Google OAuth endpoints in `backend/tests/controllers/auth.controller.spec.ts`.
-- [ ] T026 [P] [US2] Write integration tests for login UI component in `frontend/tests/components/auth/LoginForm.spec.tsx`.
-- [ ] T027 [P] [US2] Write E2E test for user login flow (email/password and Google OAuth).
+- [x] T023 [P] [US2] Write unit tests for user login service in `backend/tests/services/auth.service.spec.ts`.
+- [x] T024 [P] [US2] Write integration tests for `POST /auth/login/email` endpoint in `backend/tests/controllers/auth.controller.spec.ts`.
+- [x] T025 [P] [US2] Write integration tests for Google OAuth endpoints in `backend/tests/controllers/auth.controller.spec.ts`.
+- [x] T026 [P] [US2] Write integration tests for login UI component in `frontend/tests/components/auth/LoginForm.spec.tsx`.
+- [x] T027 [P] [US2] Write E2E test for user login flow in `e2e/tests/auth/login.spec.ts`.
 
 ### Implementation for User Story 2
 
-- [ ] T028 [US2] Implement user login service (email/password) in `backend/src/services/auth.service.ts`.
-- [ ] T029 [US2] Implement `POST /auth/login/email` API endpoint in `backend/src/controllers/auth.controller.ts`.
-- [ ] T030 [US2] Integrate Google OAuth logic in `backend/src/auth/google.strategy.ts`.
-- [ ] T031 [US2] Implement `GET /auth/login/google` and `GET /auth/login/google/callback` API endpoints in `backend/src/controllers/auth.controller.ts`.
-- [ ] T032 [US2] Design and implement login UI component in `frontend/src/components/auth/LoginForm.tsx`.
-- [ ] T033 [US2] Integrate login form (email/password and Google OAuth) with backend API in `frontend/src/pages/login.tsx`.
+- [x] T028 [US2] Implement user login service (email/password) in `backend/src/auth/auth.service.ts`.
+- [x] T029 [US2] Implement `POST /auth/login/email` API endpoint in `backend/src/auth/auth.controller.ts`.
+- [x] T030 [US2] Integrate Google OAuth logic in `backend/src/auth/google.strategy.ts`.
+- [x] T031 [US2] Implement `GET /auth/login/google` and `GET /auth/login/google/callback` API endpoints in `backend/src/auth/auth.controller.ts`.
+- [x] T032 [US2] Design and implement login UI component in `frontend/src/components/auth/LoginForm.tsx`.
+- [x] T033 [US2] Integrate login form (email/password and Google OAuth) with backend API in `frontend/src/app/login/page.tsx`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -115,19 +115,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T034 [P] [US3] Write unit tests for GuestSession entity/model in `backend/tests/models/guest.entity.spec.ts`.
-- [ ] T035 [P] [US3] Write unit tests for guest session service in `backend/tests/services/guest.service.spec.ts`.
-- [ ] T036 [P] [US3] Write integration test for `POST /guest/join` endpoint in `backend/tests/controllers/guest.controller.spec.ts`.
-- [ ] T037 [P] [US3] Write integration tests for guest join UI component in `frontend/tests/components/meeting/JoinAsGuest.spec.tsx`.
-- [ ] T038 [P] [US3] Write E2E test for guest join flow.
+- [x] T034 [P] [US3] Write unit tests for GuestSession entity/model in `backend/tests/models/guest-session.entity.spec.ts`.
+- [x] T035 [P] [US3] Write unit tests for guest session service in `backend/tests/services/guest.service.spec.ts`.
+- [x] T036 [P] [US3] Write integration test for `POST /guest/join` endpoint in `backend/tests/controllers/guest.controller.spec.ts`.
+- [x] T037 [P] [US3] Write integration tests for guest join UI component in `frontend/tests/components/meeting/JoinAsGuest.spec.tsx`.
+- [x] T038 [P] [US3] Write E2E test for guest join flow in `e2e/tests/auth/guest-join.spec.ts`.
 
 ### Implementation for User Story 3
 
-- [ ] T039 [P] [US3] Create GuestSession entity/model in `backend/src/models/guest.entity.ts`.
-- [ ] T040 [US3] Implement guest session service in `backend/src/services/guest.service.ts`.
-- [ ] T041 [US3] Implement `POST /guest/join` API endpoint in `backend/src/controllers/guest.controller.ts`.
-- [ ] T042 [US3] Design and implement UI for joining as guest in `frontend/src/components/meeting/JoinAsGuest.tsx`.
-- [ ] T043 [US3] Integrate guest join UI with backend API in `frontend/src/pages/join/[meetingId].tsx`.
+- [x] T039 [P] [US3] Create GuestSession entity/model in `backend/src/guest/guest-session.entity.ts`.
+- [x] T040 [US3] Implement guest session service in `backend/src/guest/guest.service.ts`.
+- [x] T041 [US3] Implement `POST /guest/join` API endpoint in `backend/src/guest/guest.controller.ts`.
+- [x] T042 [US3] Design and implement UI for joining as guest in `frontend/src/components/meeting/JoinAsGuest.tsx`.
+- [x] T043 [US3] Integrate guest join UI with backend API in `frontend/src/app/join/[meetingId]/page.tsx`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -137,13 +137,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T044 [P] Update API documentation (`contracts/auth.yaml`) with detailed examples and descriptions.
-- [ ] T045 [P] Implement secure token storage strategy on frontend (e.g., HttpOnly cookies, refresh token mechanism).
-- [ ] T046 Refine error handling and user feedback across all auth flows.
-- [ ] T047 Optimize database queries and API responses for performance.
-- [ ] T048 Review and improve security aspects (e.g., rate limiting, input sanitization).
-- [ ] T049 Update quickstart guide with deployment instructions.
-- [ ] T050 Conduct accessibility audit for all auth-related UI components.
+- [x] T044 [P] Update API documentation (`contracts/auth.yaml`) with detailed examples and descriptions.
+- [x] T045 [P] Implement secure token storage strategy on frontend in `frontend/src/services/auth.service.ts`.
+- [x] T046 Refine error handling and user feedback in `frontend/src/components/ui/`.
+- [x] T047 Optimize database queries with indexes in `backend/src/user/user.entity.ts` and `backend/src/guest/guest-session.entity.ts`.
+- [x] T048 Implement rate limiting with `@nestjs/throttler` in `backend/src/app.module.ts`.
+- [x] T049 Update quickstart guide with deployment instructions in `specs/001-auth-user-access/quickstart.md`.
+- [x] T050 Conduct accessibility audit - added ARIA attributes, roles, focus management to auth UI components.
 
 ---
 

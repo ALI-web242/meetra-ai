@@ -37,8 +37,8 @@ The codebase must be modular to promote separation of concerns and long-term mai
 - **Frontend:** Next.js (App Router), Tailwind CSS, Shadcn UI, WebRTC, Zustand/Redux
 - **Backend:** Node.js (NestJS/Express), WebSockets, REST + WebRTC Signaling
 - **AI Layer:** Gemini/OpenAI/DeepSeek, Whisper/AssemblyAI (Speech-to-text), LangGraph/Custom (Agent Framework)
-- **Database:** PostgreSQL (Supabase/Neon), Redis
-- **Infrastructure:** Docker, AWS/GCP/Fly.io, TURN/STUN servers
+- **Database:** Neon PostgreSQL (primary managed Postgres provider, optionally Supabase), Redis
+- **Infrastructure:** AWS/GCP/Fly.io, TURN/STUN servers
 
 ## Development Phases
 1.  **Planning:** Finalize PRD, Wireframes, Architecture

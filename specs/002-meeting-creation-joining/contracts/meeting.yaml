@@ -1,0 +1,454 @@
+openapi: 3.0.3
+info:
+  title: Meetra AI - Meeting API
+  description: API for meeting creation, joining, and lifecycle management
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3001/api
+    description: Development
+  - url: https://api.meetra.app/api
+    description: Production
+
+tags:
+  - name: meetings
+    description: Meeting management operations
+
+paths:
+  /meetings:
+    post:
+      tags:
+        - meetings
+      summary: Create a new meeting
+      description: Creates a new meeting with unique ID and optional password protection
+      operationId: createMeeting
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMeetingRequest'
+      responses:
+        '201':
+          description: Meeting created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingCreatedResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /meetings/{meetingId}:
+    get:
+      tags:
+        - meetings
+      summary: Get meeting information
+      description: Retrieves meeting details by meeting ID
+      operationId: getMeeting
+      parameters:
+        - $ref: '#/components/parameters/MeetingIdParam'
+      responses:
+        '200':
+          description: Meeting details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /meetings/{meetingId}/join:
+    post:
+      tags:
+        - meetings
+      summary: Join a meeting
+      description: Join an existing meeting as participant
+      operationId: joinMeeting
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MeetingIdParam'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JoinMeetingRequest'
+      responses:
+        '200':
+          description: Successfully joined meeting
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JoinMeetingResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Invalid password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /meetings/{meetingId}/start:
+    post:
+      tags:
+        - meetings
+      summary: Start a meeting
+      description: Start the meeting (host only)
+      operationId: startMeeting
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MeetingIdParam'
+      responses:
+        '200':
+          description: Meeting started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Not the host
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /meetings/{meetingId}/end:
+    post:
+      tags:
+        - meetings
+      summary: End a meeting
+      description: End the meeting and disconnect all participants (host only)
+      operationId: endMeeting
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MeetingIdParam'
+      responses:
+        '200':
+          description: Meeting ended
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Not the host
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /meetings/{meetingId}/leave:
+    post:
+      tags:
+        - meetings
+      summary: Leave a meeting
+      description: Leave the meeting
+      operationId: leaveMeeting
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MeetingIdParam'
+      responses:
+        '200':
+          description: Left meeting successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Left meeting successfully"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /meetings/{meetingId}/participants:
+    get:
+      tags:
+        - meetings
+      summary: Get meeting participants
+      description: Get list of all participants in the meeting
+      operationId: getParticipants
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MeetingIdParam'
+      responses:
+        '200':
+          description: List of participants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParticipantsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    MeetingIdParam:
+      name: meetingId
+      in: path
+      required: true
+      description: Unique meeting ID (format: XXX-XXX-XXX)
+      schema:
+        type: string
+        pattern: '^[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}$'
+        example: 'ABC-123-XYZ'
+
+  schemas:
+    CreateMeetingRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Meeting name (optional, defaults to "User's Meeting")
+          example: "Team Standup"
+        password:
+          type: string
+          minLength: 4
+          maxLength: 50
+          description: Optional password protection
+          example: "secret123"
+
+    MeetingCreatedResponse:
+      type: object
+      required:
+        - id
+        - meetingId
+        - name
+        - status
+        - link
+        - host
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Internal UUID
+        meetingId:
+          type: string
+          description: Public meeting ID
+          example: 'ABC-123-XYZ'
+        name:
+          type: string
+          example: "Team Standup"
+        hasPassword:
+          type: boolean
+          example: true
+        status:
+          $ref: '#/components/schemas/MeetingStatus'
+        link:
+          type: string
+          format: uri
+          example: "https://meetra.app/m/ABC-123-XYZ"
+        host:
+          $ref: '#/components/schemas/UserSummary'
+        createdAt:
+          type: string
+          format: date-time
+
+    MeetingResponse:
+      type: object
+      required:
+        - id
+        - meetingId
+        - name
+        - status
+        - host
+        - participantCount
+      properties:
+        id:
+          type: string
+          format: uuid
+        meetingId:
+          type: string
+          example: 'ABC-123-XYZ'
+        name:
+          type: string
+          example: "Team Standup"
+        hasPassword:
+          type: boolean
+          example: true
+        status:
+          $ref: '#/components/schemas/MeetingStatus'
+        host:
+          $ref: '#/components/schemas/UserSummary'
+        participantCount:
+          type: integer
+          example: 5
+        createdAt:
+          type: string
+          format: date-time
+        startedAt:
+          type: string
+          format: date-time
+          nullable: true
+        endedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    JoinMeetingRequest:
+      type: object
+      properties:
+        password:
+          type: string
+          description: Meeting password (if required)
+          example: "secret123"
+
+    JoinMeetingResponse:
+      type: object
+      required:
+        - meeting
+        - role
+        - participant
+      properties:
+        meeting:
+          $ref: '#/components/schemas/MeetingResponse'
+        role:
+          $ref: '#/components/schemas/ParticipantRole'
+        participant:
+          $ref: '#/components/schemas/Participant'
+
+    ParticipantsResponse:
+      type: object
+      required:
+        - participants
+        - count
+      properties:
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/Participant'
+        count:
+          type: integer
+          example: 5
+
+    Participant:
+      type: object
+      required:
+        - id
+        - user
+        - role
+        - joinedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        user:
+          $ref: '#/components/schemas/UserSummary'
+        role:
+          $ref: '#/components/schemas/ParticipantRole'
+        joinedAt:
+          type: string
+          format: date-time
+        leftAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    UserSummary:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "Ali Ahmed"
+        email:
+          type: string
+          format: email
+          example: "ali@example.com"
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+
+    MeetingStatus:
+      type: string
+      enum:
+        - waiting
+        - active
+        - ended
+      example: 'waiting'
+
+    ParticipantRole:
+      type: string
+      enum:
+        - host
+        - participant
+      example: 'participant'
+
+    Error:
+      type: object
+      required:
+        - statusCode
+        - message
+      properties:
+        statusCode:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: "Invalid request"
+        error:
+          type: string
+          example: "Bad Request"
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Unauthorized - Invalid or missing token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Meeting not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

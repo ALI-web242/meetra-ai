@@ -7,18 +7,18 @@
 
 ## Summary
 
-This plan outlines the implementation for the "Authentication and User Access" module of Meetra AI. The primary goal is to enable user registration via email/password, login via email/password and Google OAuth, and provide guest access to meetings. The technical approach leverages a TypeScript-based web application with Next.js for the frontend and Node.js (NestJS/Express) for the backend, utilizing PostgreSQL for user data storage and Redis for session management. Testing will be comprehensive, using Jest for unit/integration tests across both frontend and backend, with Testing Library for user-centric component testing and Cypress/Playwright for end-to-end user flows.
+This plan outlines the implementation for the "Authentication and User Access" module of Meetra AI. The primary goal is to enable user registration via email/password, login via email/password and Google OAuth, and provide guest access to meetings. The technical approach leverages a TypeScript-based web application with Next.js for the frontend and Node.js (NestJS/Express) for the backend, utilizing a managed PostgreSQL instance on Neon for user data storage and Redis for session management (if needed). Testing will be comprehensive, using Jest for unit/integration tests across both frontend and backend, with Testing Library for user-centric component testing and Cypress/Playwright for end-to-end user flows.
 
 ## Technical Context
 
 **Language/Version**: TypeScript (Frontend: Next.js 14; Backend: Node.js with NestJS/Express)
 **Primary Dependencies**: Frontend: Next.js, Tailwind CSS, Shadcn UI, Zustand/Redux; Backend: NestJS/Express, WebSockets, JWT libraries, Google OAuth client library, Password hashing library
-**Storage**: PostgreSQL (for User data), Redis (for session management if needed)
+**Storage**: Neon PostgreSQL (primary managed database for User and auth-related data), Redis (for session management if needed)
 **Testing**: Jest (unit/integration for both frontend/backend), Testing Library (frontend user-centric), Cypress/Playwright (E2E)
 **Target Platform**: Web
 **Project Type**: Web application (frontend + backend)
 **Performance Goals**: Latency < 300ms, 99.9% uptime
-**Constraints**: Latency < 300ms, 99.9% uptime, GDPR compliant, Password validation rules (from spec), AI features are opt-in (from constitution)
+**Constraints**: Latency < 300ms, 99.9% uptime, GDPR compliant, Password validation rules (from spec), AI features are opt-in (from constitution), database connectivity MUST be via a secure `DATABASE_URL` (Neon) with SSL enabled instead of a local Dockerized Postgres instance.
 **Scale/Scope**: 10k users; Module: Authentication and User Access
 
 ## Constitution Check

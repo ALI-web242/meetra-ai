@@ -82,3 +82,4 @@ As a guest, I want to join a meeting via an invite link without needing to creat
 -   Email verification will be implemented in a future phase but the system should be ready to integrate it.
 -   Password validation rules will follow common security best practices (e.g., minimum length, complexity).
 -   Guest session identity will be stateless or minimally stateful for security and performance.
+-   A managed PostgreSQL instance (Neon) will be used as the primary database and will be accessed via a `DATABASE_URL` connection string with SSL enabled; no local Dockerized database is required.
