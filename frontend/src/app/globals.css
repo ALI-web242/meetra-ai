@@ -22,19 +22,19 @@
 /* Dark Theme */
 [data-theme="dark"] {
   --background: #0a0a0a;
-  --foreground: #ededed;
+  --foreground: #ffffff;
   --card: #1f2937;
-  --card-foreground: #f9fafb;
+  --card-foreground: #ffffff;
   --primary: #3b82f6;
   --primary-foreground: #ffffff;
   --secondary: #4b5563;
   --secondary-foreground: #f9fafb;
   --muted: #374151;
-  --muted-foreground: #9ca3af;
+  --muted-foreground: #d1d5db;
   --accent: #8b5cf6;
   --accent-foreground: #ffffff;
-  --border: #374151;
-  --input: #374151;
+  --border: #4b5563;
+  --input: #1f2937;
 }
 
 /* Bright Theme */
