@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 
@@ -12,7 +12,7 @@ interface FormErrors {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-export default function LoginForm() {
+function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
@@ -217,5 +217,18 @@ export default function LoginForm() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function LoginForm() {
+  return (
+    <Suspense fallback={
+      <div className="space-y-6 max-w-md mx-auto">
+        <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
+        <div className="text-center text-gray-600">Loading...</div>
+      </div>
+    }>
+      <LoginFormContent />
+    </Suspense>
   );
 }

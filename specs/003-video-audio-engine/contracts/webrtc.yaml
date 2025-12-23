@@ -1,0 +1,513 @@
+openapi: 3.0.3
+info:
+  title: Video & Audio Engine API
+  description: WebRTC signaling and media management endpoints
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3001/api
+    description: Development
+  - url: https://api.meetra-ai.com
+    description: Production
+
+tags:
+  - name: media
+    description: Audio and video stream management
+  - name: webrtc
+    description: WebRTC signaling and peer connection
+
+paths:
+  /media/devices:
+    get:
+      tags:
+        - media
+      summary: Get available media devices
+      description: Returns list of available audio/video input devices for the user
+      operationId: getMediaDevices
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of available devices
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaDevicesResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /media/permissions:
+    post:
+      tags:
+        - media
+      summary: Request media permissions
+      description: Request audio/video permissions from user
+      operationId: requestMediaPermissions
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MediaPermissionsRequest'
+      responses:
+        '200':
+          description: Permissions granted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaPermissionsResponse'
+        '403':
+          description: Permissions denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /media/stream/start:
+    post:
+      tags:
+        - media
+      summary: Start media stream
+      description: Initialize audio/video stream with specified constraints
+      operationId: startMediaStream
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartStreamRequest'
+      responses:
+        '200':
+          description: Stream started successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /media/stream/stop:
+    post:
+      tags:
+        - media
+      summary: Stop media stream
+      description: Stop active audio/video stream
+      operationId: stopMediaStream
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StopStreamRequest'
+      responses:
+        '200':
+          description: Stream stopped successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /webrtc/offer:
+    post:
+      tags:
+        - webrtc
+      summary: Send WebRTC offer
+      description: Send SDP offer to establish peer connection
+      operationId: sendOffer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebRTCOfferRequest'
+      responses:
+        '200':
+          description: Offer sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebRTCSignalResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /webrtc/answer:
+    post:
+      tags:
+        - webrtc
+      summary: Send WebRTC answer
+      description: Send SDP answer to complete peer connection
+      operationId: sendAnswer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebRTCAnswerRequest'
+      responses:
+        '200':
+          description: Answer sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebRTCSignalResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /webrtc/ice-candidate:
+    post:
+      tags:
+        - webrtc
+      summary: Send ICE candidate
+      description: Send ICE candidate for peer connection
+      operationId: sendIceCandidate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ICECandidateRequest'
+      responses:
+        '200':
+          description: ICE candidate sent successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /webrtc/connection/status:
+    get:
+      tags:
+        - webrtc
+      summary: Get connection status
+      description: Get current WebRTC connection status and quality metrics
+      operationId: getConnectionStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: meetingId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Connection status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionStatusResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  schemas:
+    MediaDevicesResponse:
+      type: object
+      properties:
+        audioInputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/MediaDevice'
+        videoInputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/MediaDevice'
+        audioOutputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/MediaDevice'
+
+    MediaDevice:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          description: Unique device identifier
+        label:
+          type: string
+          description: Device name/label
+        kind:
+          type: string
+          enum: [audioinput, videoinput, audiooutput]
+          description: Device type
+
+    MediaPermissionsRequest:
+      type: object
+      required:
+        - audio
+        - video
+      properties:
+        audio:
+          type: boolean
+          description: Request audio permission
+        video:
+          type: boolean
+          description: Request video permission
+
+    MediaPermissionsResponse:
+      type: object
+      properties:
+        audio:
+          type: boolean
+          description: Audio permission granted
+        video:
+          type: boolean
+          description: Video permission granted
+        message:
+          type: string
+          description: Status message
+
+    StartStreamRequest:
+      type: object
+      required:
+        - meetingId
+        - constraints
+      properties:
+        meetingId:
+          type: string
+          description: Meeting ID
+        constraints:
+          $ref: '#/components/schemas/MediaConstraints'
+
+    MediaConstraints:
+      type: object
+      properties:
+        audio:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            deviceId:
+              type: string
+            echoCancellation:
+              type: boolean
+              default: true
+            noiseSuppression:
+              type: boolean
+              default: true
+        video:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            deviceId:
+              type: string
+            width:
+              type: integer
+              default: 1280
+            height:
+              type: integer
+              default: 720
+            frameRate:
+              type: integer
+              default: 30
+
+    StreamResponse:
+      type: object
+      properties:
+        streamId:
+          type: string
+          description: Unique stream identifier
+        meetingId:
+          type: string
+          description: Associated meeting ID
+        constraints:
+          $ref: '#/components/schemas/MediaConstraints'
+        startedAt:
+          type: string
+          format: date-time
+
+    StopStreamRequest:
+      type: object
+      required:
+        - streamId
+      properties:
+        streamId:
+          type: string
+          description: Stream ID to stop
+
+    WebRTCOfferRequest:
+      type: object
+      required:
+        - meetingId
+        - offer
+      properties:
+        meetingId:
+          type: string
+          description: Meeting ID
+        offer:
+          $ref: '#/components/schemas/RTCSessionDescription'
+
+    WebRTCAnswerRequest:
+      type: object
+      required:
+        - meetingId
+        - answer
+      properties:
+        meetingId:
+          type: string
+          description: Meeting ID
+        answer:
+          $ref: '#/components/schemas/RTCSessionDescription'
+
+    RTCSessionDescription:
+      type: object
+      required:
+        - type
+        - sdp
+      properties:
+        type:
+          type: string
+          enum: [offer, answer]
+          description: SDP type
+        sdp:
+          type: string
+          description: Session Description Protocol
+
+    ICECandidateRequest:
+      type: object
+      required:
+        - meetingId
+        - candidate
+      properties:
+        meetingId:
+          type: string
+          description: Meeting ID
+        candidate:
+          $ref: '#/components/schemas/RTCIceCandidate'
+
+    RTCIceCandidate:
+      type: object
+      properties:
+        candidate:
+          type: string
+          description: ICE candidate string
+        sdpMid:
+          type: string
+          description: Media stream ID
+        sdpMLineIndex:
+          type: integer
+          description: Media line index
+
+    WebRTCSignalResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        meetingId:
+          type: string
+
+    ConnectionStatusResponse:
+      type: object
+      properties:
+        meetingId:
+          type: string
+        connectionState:
+          type: string
+          enum: [new, connecting, connected, disconnected, failed, closed]
+        iceConnectionState:
+          type: string
+          enum: [new, checking, connected, completed, failed, disconnected, closed]
+        metrics:
+          $ref: '#/components/schemas/ConnectionMetrics'
+
+    ConnectionMetrics:
+      type: object
+      properties:
+        latency:
+          type: integer
+          description: Round-trip time in milliseconds
+          example: 45
+        bitrate:
+          type: object
+          properties:
+            video:
+              type: integer
+              description: Video bitrate in kbps
+            audio:
+              type: integer
+              description: Audio bitrate in kbps
+        packetLoss:
+          type: number
+          format: float
+          description: Packet loss percentage
+          example: 0.5
+        jitter:
+          type: integer
+          description: Jitter in milliseconds
+        quality:
+          type: string
+          enum: [excellent, good, fair, poor]
+          description: Overall connection quality
+
+    Error:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+        message:
+          type: string
+        error:
+          type: string
+        details:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Unauthorized - Invalid or missing token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from login
+
+security:
+  - bearerAuth: []

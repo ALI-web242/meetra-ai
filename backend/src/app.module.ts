@@ -8,6 +8,7 @@ import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { GuestModule } from './guest/guest.module';
 import { MeetingModule } from './meeting/meeting.module';
+import { WebRTCModule } from './webrtc/webrtc.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LoggingMiddleware } from './middleware/logging-error.middleware';
 
@@ -27,6 +28,7 @@ import { LoggingMiddleware } from './middleware/logging-error.middleware';
     AuthModule,
     GuestModule,
     MeetingModule,
+    WebRTCModule,
   ],
   controllers: [AppController],
   providers: [
